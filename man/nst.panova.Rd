@@ -1,0 +1,59 @@
+\name{nst.panova}
+\alias{nst.panova}
+\title{
+Permutational multivariate ANOVA test for ST and NST
+}
+\description{
+Permutational multivariate ANOVA test for stochasticity ratio and normalized stochasticity ratio between treatments
+}
+\usage{
+nst.panova(nst.result, group=NULL, rand=999, trace=TRUE)
+}
+\arguments{
+  \item{nst.result}{list object, the output of nsto, must have "details"}
+  \item{group}{nx1 matrix, if the grouping is different from the nst.result. default is NULL, means to use the grouping in nst.result.}
+  \item{rand}{integer, randomization times for permuational test}
+  \item{trace}{logic, whether to show message when randomizing.}
+}
+\details{
+coming later
+}
+\value{
+Output is a data.frame object.
+  \item{index}{name of index}
+  \item{group1}{treatment/group name}
+  \item{group2}{treatment/group name}
+  \item{Index.group1}{index value in group1}
+  \item{Index.group2}{index value in group2}
+  \item{Difference}{index.group1 - index.group2}
+  \item{F.obs}{F value}
+  \item{P.anova}{P value of parametric ANOVA test}
+  \item{P.panova}{P value of permutational ANOVA test}
+  \item{P.perm}{P value of permutational test of the difference}
+}
+\references{
+Ning D, Deng Y, Tiedjee JM, and Zhou J. (2019) A General Framework for Quantitatively Assessing Ecological Stochasticity. in review.
+}
+\author{
+Daliang Ning
+}
+\note{
+Version 2.0: 2019.5.10
+Version 1.0: 2017.12.30
+}
+\seealso{
+\code{\link{tNST}}, \code{\link{nst.boot}}
+}
+\examples{
+data(tda)
+comm=tda$comm
+group=tda$group
+tnst=tNST(comm=comm, group=group, rand=20,
+          output.rand=TRUE, nworker=1)
+# rand is usually set as 1000, here set rand=20 to save test time.
+
+nst.pova=nst.panova(nst.result=tnst, rand=99)
+# rand is usually set as 999, here set rand=99 to save test time.
+}
+
+\keyword{ Significance }
