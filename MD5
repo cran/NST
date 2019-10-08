@@ -1,4 +1,4 @@
-9674c3a0c79f8f1843f8fd53eec937e9 *DESCRIPTION
+03cafd8f4ec5b74da2f910fb42f03806 *DESCRIPTION
 2031df0b80c4fdad8cb6a9df4d569ae2 *NAMESPACE
 fb3a8f552a1be12bab3ceae7809a2372 *R/ab.assign.r
 803d2f7ad167c3ee82a25b5e933c2561 *R/beta.g.r
@@ -11,15 +11,16 @@ a6a747c78c1a9c165f38aede481add0c *R/taxo.null.r
 38044fc095f0b3754131fb76b146e5a3 *data/beta.limit.rda
 eddb638372baf5efadf28623f6280fd1 *data/null.models.rda
 8a2c873d52c71d0324b55dffa9b701a2 *data/tda.rda
-22ee60039bb68cc16869f2fb3d0203ba *man/NST-package.Rd
+ca78833ee781c1f897c951521194436a *inst/CITATION
+052c48569c4b54cb6f1a5e5bec1ae778 *man/NST-package.Rd
 b9c0bffc6da5f324d021c31224c6ec0d *man/ab.assign.Rd
 8fd66731be0bd4580abb9a832822b41b *man/beta.g.Rd
 2f95df6065fe1a87fb1affb3dbb2c0a3 *man/beta.limit.Rd
 290cc505d9a1b8277b6756875a8acb1c *man/dist.3col.Rd
 a011d3e2e1e40309c78fcdef98732c70 *man/match.name.Rd
-568efcf96b1e84ca79414a857b2d17b7 *man/nst.boot.Rd
-abae331d487dd0bec62ceb0c6f1ce343 *man/nst.panova.Rd
+9717527e7388bfc2134d42be64ba1e65 *man/nst.boot.Rd
+2fc26f6a94dc391084c2eddfa1d9c5df *man/nst.panova.Rd
 969ace66c2c83437943acde6673a479a *man/null.models.Rd
-e129857fc41df01a32a4f74b7c552845 *man/tNST.Rd
+32399a7f9156c8ae69df150e79d840f1 *man/tNST.Rd
 aa77a34cc29d47587409f42443bc4385 *man/taxo.null.Rd
 af289106601f14e0d80a0a9b87567239 *man/tda.Rd

@@ -7,23 +7,23 @@ Normalized Stochasticity Ratio
 }
 \description{
 This package is to estimate ecological stochasticity in community assembly based on beta diversity. Various indexes can be calculated, including Stochasticity Ratio (ST), Normalized Stochasticity Ratio (NST), Modified Stochasticity Ratio (MST), Standard Effect Size (SES), and modified Raup-Crick metrics (RC), based on various dissimilarity metrics and different null model algorithms.
+Version 2.0.4: Update citation and references. Emphasize that NST variation should be calculated from nst.boot rather than pairwise NST.ij from tNST. Emphasize that different group setting in tNST may lead to different NST results.
 }
 \details{
 \tabular{ll}{
 Package: \tab NST\cr
 Type: \tab Package\cr
-Version: \tab 2.0.3\cr
-Date: \tab 2019-6-14\cr
+Version: \tab 2.0.4\cr
+Date: \tab 2019-10-08\cr
 License: \tab GPL-2\cr
 }
-
 }
 
 \author{
 Daliang Ning <ningdaliang@ou.edu>
 }
 \references{
-Ning D, Deng Y, Tiedjee JM, and Zhou J. (2019) A General Framework for Quantitatively Assessing Ecological Stochasticity. in review.
+Ning D., Deng Y., Tiedje J.M. & Zhou J. (2019) A general framework for quantitatively assessing ecological stochasticity. Proceedings of the National Academy of Sciences 116, 16892-16898. doi:10.1073/pnas.1904623116. 
 
 Zhou J, Deng Y, Zhang P, Xue K, Liang Y, Van Nostrand JD, Yang Y, He Z, Wu L, Stahl DA, Hazen TC, Tiedje JM, and Arkin AP. (2014) Stochasticity, succession, and environmental perturbations in a fluidic ecosystem. Proceedings of the National Academy of Sciences of the United States of America 111, E836-E845. doi:10.1073/pnas.1324044111.
 }

@@ -1,0 +1,11 @@
+bibentry(bibtype = "Article",
+         title = "A general framework for quantitatively assessing ecological stochasticity",
+         author = c(person(given = "Daliang", family = "Ning"),
+                    person(given = "Ye", family = "Deng"),
+                    person(given = "James M.", family = "Tiedje"),
+                    person(given = "Jizhong", family = "Zhou")),
+         journal = "Proceedings of the National Academy of Sciences",
+         year = "2019",
+         volume = "116",
+         pages = "16892-16898",
+         doi = "10.1073/pnas.1904623116")

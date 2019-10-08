@@ -35,12 +35,13 @@ Output is a list object, includes
   \item{detail}{a list object. ST.boot, a list of bootstrapping detail results of ST for each group, each element in the list means the result of one random draw; NST.boot, bootstrapping results of NST; ST.boot.rmout, bootstrapping results of ST without outliers; NST.boot.rmout, bootstrapping results of NST without outliers; STb.boot, NSTb.boot, STb.boot.rmout, and NSTb.boot.rmout have the same meanning but for between-group comparisons.}
 }
 \references{
-Ning D, Deng Y, Tiedjee JM, and Zhou J. (2019) A General Framework for Quantitatively Assessing Ecological Stochasticity. in review.
+Ning D., Deng Y., Tiedje J.M. & Zhou J. (2019) A general framework for quantitatively assessing ecological stochasticity. Proceedings of the National Academy of Sciences 116, 16892-16898. doi:10.1073/pnas.1904623116. 
 }
 \author{
 Daliang Ning
 }
 \note{
+Version 3: 2019.10.8. Update reference.
 Version 2: 2019.5.10
 Version 1: 2018.1.9
 }

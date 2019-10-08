@@ -32,14 +32,15 @@ Output is a data.frame object.
   \item{P.perm}{P value of permutational test of the difference}
 }
 \references{
-Ning D, Deng Y, Tiedjee JM, and Zhou J. (2019) A General Framework for Quantitatively Assessing Ecological Stochasticity. in review.
+Ning D., Deng Y., Tiedje J.M. & Zhou J. (2019) A general framework for quantitatively assessing ecological stochasticity. Proceedings of the National Academy of Sciences 116, 16892-16898. doi:10.1073/pnas.1904623116. 
 }
 \author{
 Daliang Ning
 }
 \note{
-Version 2.0: 2019.5.10
-Version 1.0: 2017.12.30
+Version 3: 2019.10.8. Update reference.
+Version 2: 2019.5.10
+Version 1: 2017.12.30
 }
 \seealso{
 \code{\link{tNST}}, \code{\link{nst.boot}}

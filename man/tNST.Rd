@@ -16,7 +16,7 @@ tNST(comm, group, meta.group=NULL, meta.com=NULL,
 
 \arguments{
   \item{comm}{matrix or data.frame, local community data, each row is a sample or site, each colname is a species or OTU or gene, thus rownames should be sample IDs, colnames should be taxa IDs.}
-  \item{group}{matrix or data.frame, a one-column (n x 1) matrix indicating the group or treatment of each sample, rownames are sample IDs. if input a n x m matrix, only the first column is used.}
+  \item{group}{matrix or data.frame, a one-column (n x 1) matrix indicating the group or treatment of each sample, rownames are sample IDs. if input a n x m matrix, only the first column is used. Attention: different group setting will change NST values.}
   \item{meta.group}{matrix or data.frame, a one-column (n x 1) matrix indicating which metacommunity each sample belongs to. rownames are sample IDs. first column is metacommunity IDs. Such that different samples can belong to different metacommunities. If input a n x m matrix, only the first column is used. NULL means all samples belong to the same metacommunity. Default is NULL.}
   \item{meta.com}{matrix or data.frame, metacommunity data. Each row can be a samlple or a metacommunity, thus rownames are sample IDs or metacommunity IDs. Such that the relative abundance of each taxa in metacommunity can be different from the average relative abundance in the observed samples. This can be useful for uneven sampling design. NULL means the relative abundance of each taxa in the metacommunity can be directly calculated from the local community data (comm). Default is NULL.}
   \item{dist.method}{A character indicating dissimilarity index, including "manhattan","mManhattan", "euclidean","mEuclidean", "canberra", "bray", "kulczynski", "jaccard", "gower", "altGower", "mGower", "morisita", "horn", "binomial", "chao", "cao". default is "jaccard"}
@@ -33,10 +33,11 @@ tNST(comm, group, meta.group=NULL, meta.com=NULL,
 \details{
 NST is a metric to estimate ecological stochasticity based on null model analysis of dissimilarity. It is improved from previous index ST (Zhou et al 2014). Detailed description will be published soon (Ning et al 2019). Modified stochasticity ratio (MST) is also calculated (Liang et al 2019; Guo et al 2018), which can be regarded as a spcial transformation of NST under assumption that observed similarity can be equal to mean of null similarity under pure stochastic assembly.}
 \value{
-Output is a list.
+Output is a list. Please DO NOT use NST.ij values in index.pair.grp and index.between.grp which can be out of [0,1] without ecologcial meanning. Please use \code{\link{nst.boot}} to get variation of NST.
+
   \item{index.pair}{indexes for each pairwise comparison. D.ij, observed dissimilarity, not standardized; G.ij, average null expectation of dissimilarity, not standardized; Ds.ij, observed dissimilarity, standardized to range from 0 to 1; Gs.ij,  average null expectation of dissimilarity, standardized; C.ij and E.ij are similarity and average null expectation of simmilarity, standardized if the dissimilarity has no fixed upper limit; ST.ij, stochasticity ratio calculated by previous method (Zhou et al 2014); MST.ij, modified stochasticity ratio calculated by a modified method (Liang et al 2019; Guo et al 2018); SES.ij, standard effect size of difference between observed and null dissimilarity (Kraft et al 2011); RC.ij, modified Roup-Crick metrics (Chase et al 2011, Stegen et al 2013).}
   \item{index.grp}{mean value of each index in each group. group, group name; size, number of pairwise comparisons in this group; ST.i, group mean of stochasticity ratio, not normalized; NST.i, group mean of normalized stochasticity ratio; MST.i, group mean of modified stochasticity ratio.}
-  \item{index.pair.grp}{pairwise values of each index in each group. group, group name; C.ij, E.ij, ST.ij, and MST.ij have the same meaning as in index.pair; NST.ij, the pairwise values of NST. Since NST is normalized ST calculated from ST.ij, NST pairwise values NST.ij have no ecological meaning, just help to roughly estimate statistical variation of NST estimation. Variation of NST from bootstrapping test is preferred, see \code{\link{nst.boot}}.}
+  \item{index.pair.grp}{pairwise values of each index in each group. group, group name; C.ij, E.ij, ST.ij, and MST.ij have the same meaning as in index.pair; NST.ij, the pairwise values of NST, for reference only, DO NOT use. Since NST is normalized ST calculated from ST.ij, NST pairwise values NST.ij have no ecological meaning. Variation of NST from bootstrapping test is preferred, see \code{\link{nst.boot}}.}
   \item{index.between}{mean value of each index between each two groups. Similar to index.grp, but calcualted from comparisons between each two groups.}
   \item{index.pair.between}{pairwise values of each index between each two groups. Similar to index.pair.grp, but calcualted from comparisons between each two groups.}
   \item{Dmax}{The maximum or upper limit of dissimilarity before standardized, which is used to standardize the dissimilarity with upper limit not equal to one. See \code{\link{beta.limit}} for details.}
@@ -44,7 +45,7 @@ Output is a list.
   \item{details}{detailed results. rand.mean, mean of null dissimilarity for each pairwise comparison, not standardized; Dmax, the maximum or upper limit of dissimilarity before standardized; obs3, observed dissimilarity, not standardized; dist.ran, alll null dissimilarity values, each row is a pairwise comparison, each column is results from one randomization; group, input group informaiton; meta.group, input metacommunity information.}
 }
 \references{
-Ning D, Deng Y, Tiedjee JM, and Zhou J. (2019) A General Framework for Quantitatively Assessing Ecological Stochasticity. in review.
+Ning D., Deng Y., Tiedje J.M. & Zhou J. (2019) A general framework for quantitatively assessing ecological stochasticity. Proceedings of the National Academy of Sciences 116, 16892-16898. doi:10.1073/pnas.1904623116. 
 
 Zhou J, Deng Y, Zhang P, Xue K, Liang Y, Van Nostrand JD, Yang Y, He Z, Wu L, Stahl DA, Hazen TC, Tiedje JM, and Arkin AP. (2014) Stochasticity, succession, and environmental perturbations in a fluidic ecosystem. Proceedings of the National Academy of Sciences of the United States of America 111, E836-E845. doi:10.1073/pnas.1324044111.
 
@@ -62,7 +63,8 @@ Stegen JC, Lin X, Fredrickson JK, Chen X, Kennedy DW, Murray CJ, Rockhold ML, an
 Daliang Ning
 }
 \note{
-version 1: 2019.5.10
+Version 2: 2019.10.8. Updated references. Emphasize that NST variation should be calculated from nst.boot rather than pairwise NST.ij from tNST. Emphasize that different group setting may lead to different NST results.
+Version 1: 2019.5.10
 }
 \seealso{
 \code{\link{nst.boot}}, \code{\link{nst.panova}}, \code{\link{taxo.null}}, \code{\link{beta.limit}}
