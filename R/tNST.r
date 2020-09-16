@@ -3,11 +3,24 @@ tNST<-function(comm,group,meta.group=NULL,meta.com=NULL,
               rand=1000,output.rand=FALSE,nworker=4,LB=FALSE,
               null.model="PF",between.group=FALSE,SES=FALSE,RC=FALSE)
 {
+  if(sum(is.na(comm))>0)
+  {
+    comm[is.na(comm)]=0
+    warning("NA is not allowed in comm. automatically filled zero.")
+  }
+  groupck<-function(group)
+  {
+    grp.tab=table(as.vector(group[,1]))
+    if(sum(grp.tab<2)>0){stop("some group(s) has only one sample. impossible to perform beta diversity analysis.")}
+    if(sum(grp.tab<6)>0){warning("some groups have less than 6 samples, for which NST can be calculated but not recommened.")}
+    invisible()
+  }
   if(is.null(meta.group))
   {
     sampc=match.name(rn.list = list(comm=comm,group=group))
     comm=sampc$comm
     group=sampc$group
+    groupck(group)
     if(is.null(meta.com))
     {
       meta.abs=NULL
@@ -21,6 +34,7 @@ tNST<-function(comm,group,meta.group=NULL,meta.com=NULL,
     sampc=match.name(rn.list = list(comm=comm,group=group,meta.group=meta.group))
     comm=sampc$comm
     group=sampc$group
+    groupck(group)
     meta.group=sampc$meta.group
     meta.lev=unique(as.vector(meta.group[,1]))
     if(is.null(meta.com))

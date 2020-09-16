@@ -31,7 +31,7 @@ tNST(comm, group, meta.group=NULL, meta.com=NULL,
   \item{RC}{Logic, whether to calculate modified Raup-Crick metric, which is percentage of null dissimilarity lower than observed dissimilarity x 2 - 1. default is FALSE.}
 }
 \details{
-NST is a metric to estimate ecological stochasticity based on null model analysis of dissimilarity. It is improved from previous index ST (Zhou et al 2014). Detailed description will be published soon (Ning et al 2019). Modified stochasticity ratio (MST) is also calculated (Liang et al 2019; Guo et al 2018), which can be regarded as a spcial transformation of NST under assumption that observed similarity can be equal to mean of null similarity under pure stochastic assembly.}
+NST is a metric to estimate ecological stochasticity based on null model analysis of dissimilarity. It is improved from previous index ST (Zhou et al 2014). Detailed description is in Ning et al (2019). Modified stochasticity ratio (MST) is also calculated (Liang et al 2019; Guo et al 2018), which can be regarded as a spcial transformation of NST under assumption that observed similarity can be equal to mean of null similarity under pure stochastic assembly.}
 \value{
 Output is a list. Please DO NOT use NST.ij values in index.pair.grp and index.between.grp which can be out of [0,1] without ecologcial meanning. Please use \code{\link{nst.boot}} to get variation of NST.
 
@@ -67,7 +67,7 @@ Version 2: 2019.10.8. Updated references. Emphasize that NST variation should be
 Version 1: 2019.5.10
 }
 \seealso{
-\code{\link{nst.boot}}, \code{\link{nst.panova}}, \code{\link{taxo.null}}, \code{\link{beta.limit}}
+\code{\link{nst.boot}}, \code{\link{nst.panova}}, \code{\link{taxo.null}}, \code{\link{beta.limit}}, \code{\link{pNST}}
 }
 \examples{
 data(tda)

@@ -13,6 +13,7 @@ A simple test data with a community matrix and treatment information
   \describe{
     \item{\code{comm}}{matrix, community table; each row is a sample, thus rownames are sample IDs; each column is a taxon, thus colnames are OTU IDs.}
     \item{\code{group}}{matrix with only one column. treatment information; rownames are sample IDs; the only column shows treatment IDs.}
+    \item{\code{tree}}{phylogenetic tree.}
   }
 }
 \examples{
