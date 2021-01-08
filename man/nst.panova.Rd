@@ -16,7 +16,7 @@ nst.panova(nst.result, group=NULL, rand=999, trace=TRUE)
   \item{trace}{logic, whether to show message when randomizing.}
 }
 \details{
-coming later
+PERMANOVA for stochasticity ratio (ST or NST or MST) is based on the comparison of F values between observed pattern and the permutated patterns where samples are randomly shuffled regardless of treatments.  However, it is a bit different from PERMANOVA for dissimilarity. The PERMANOVA of stochasticity ratio here is to ask whether the ST values within a group is higher than those within another group. But the PERMANOVA of dissimilarity is to ask whether the between-group dissimilarity is higher than within-group dissimilarity.
 }
 \value{
 Output is a data.frame object.
@@ -38,7 +38,8 @@ Ning D., Deng Y., Tiedje J.M. & Zhou J. (2019) A general framework for quantitat
 Daliang Ning
 }
 \note{
-Version 3: 2019.10.8. Update reference.
+Version 4: 2020.10.14, debug some error when replecate number is low and edit details in help.
+Version 3: 2019.10.8, Update reference.
 Version 2: 2019.5.10
 Version 1: 2017.12.30
 }

@@ -70,6 +70,13 @@ nst.boot<-function(nst.result,group=NULL,rand=999,trace=TRUE,
       ECGD[EC>1]=GD[EC>1]
       
       Eij=(Dmax-rand.mean)/Dmax
+      Cij = (Dmax - obs)/Dmax
+      Dsij = obs/Dmax
+      Gsij = rand.mean/Dmax
+      MSTij = (Eij/Cij) * (Dsij/Gsij)
+      MSTij[which(MSTij > 1)] = ((Cij/Eij) * (Gsij/Dsij))[which(MSTij > 1)]
+      MSTi=mean(MSTij,na.rm = TRUE)
+      
       STmin=Eij
       STmin[which(obs>rand.mean)]=(1-Eij)[which(obs>rand.mean)]
       
@@ -79,7 +86,7 @@ nst.boot<-function(nst.result,group=NULL,rand=999,trace=TRUE,
       STi=ECGD.mi[[length(ECGD.mi)]]
       if(STi==STi.min){NSTi=0}else{NSTi=(STi-STi.min)/(STi.max-STi.min)}
       
-      c(ST=STi,NST=NSTi)
+      c(ST=STi,NST=NSTi,MST=MSTi)
     }
     
     # calculation
@@ -124,24 +131,31 @@ nst.boot<-function(nst.result,group=NULL,rand=999,trace=TRUE,
                          stnst(obs3b = obs3[idikj,,drop=FALSE],dist.ranb = dist.ran[idikj,,drop=FALSE],Dmax=Dmax)
                        }))
     }
-    stnstij=rbind(stnsti,stnstij)
+    stnstij=rbind(obs=stnsti,stnstij)
     STqtij=stats::quantile(stnstij[,1])
     NSTqtij=stats::quantile(stnstij[,2])
-    names(STqtij)<-names(NSTqtij)<-c("Min","Quantile25","Median","Quantile75","Max")
+    MSTqtij=stats::quantile(stnstij[,3])
+    names(STqtij)<-names(NSTqtij)<-names(MSTqtij)<-c("Min","Quantile25","Median","Quantile75","Max")
     STbp=grDevices::boxplot.stats(stnstij[,1],do.conf = FALSE,do.out = TRUE)
     NSTbp=grDevices::boxplot.stats(stnstij[,2],do.conf = FALSE,do.out = TRUE)
+    MSTbp=grDevices::boxplot.stats(stnstij[,3],do.conf = FALSE,do.out = TRUE)
     STboxp=STbp$stats
     NSTboxp=NSTbp$stats
-    names(STboxp)<-names(NSTboxp)<-c("LowerWhisker","LowerHinge","Median","HigherHinge","HigherWhisker")
+    MSTboxp=MSTbp$stats
+    names(STboxp)<-names(NSTboxp)<-names(MSTboxp)<-c("LowerWhisker","LowerHinge","Median","HigherHinge","HigherWhisker")
     
-    out$ST.stats=c(obs=stnsti[1],mean=mean(stnstij[,1]),stdev=stats::sd(stnstij[,1]),STqtij,STboxp)
-    out$NST.stats=c(obs=stnsti[2],mean=mean(stnstij[,2]),stdev=stats::sd(stnstij[,2]),NSTqtij,NSTboxp)
+    out$ST.stats=c(obs=stnsti[[1]],mean=mean(stnstij[,1]),stdev=stats::sd(stnstij[,1]),STqtij,STboxp)
+    out$NST.stats=c(obs=stnsti[[2]],mean=mean(stnstij[,2]),stdev=stats::sd(stnstij[,2]),NSTqtij,NSTboxp)
+    out$MST.stats=c(obs=stnsti[[3]],mean=mean(stnstij[,3]),stdev=stats::sd(stnstij[,3]),MSTqtij,MSTboxp)
     out$ST.out=STbp$out
     out$NST.out=NSTbp$out
+    out$MST.out=MSTbp$out
     out$ST.boot=stnstij[,1]
     out$NST.boot=stnstij[,2]
+    out$MST.boot=stnstij[,3]
     out$ST.noout=out$ST.boot[which(!(out$ST.boot %in% out$ST.out))]
     out$NST.noout=out$NST.boot[which(!(out$NST.boot %in% out$NST.out))]
+    out$MST.noout=out$MST.boot[which(!(out$MST.boot %in% out$MST.out))]
     
     if(i==k)
     {
@@ -184,22 +198,38 @@ nst.boot<-function(nst.result,group=NULL,rand=999,trace=TRUE,
   
   ST.stats=lapply(1:length(bt1),function(i){bt1[[i]]$ST.stats})
   NST.stats=lapply(1:length(bt1),function(i){bt1[[i]]$NST.stats})
+  MST.stats=lapply(1:length(bt1),function(i){bt1[[i]]$MST.stats})
+  
   ST.out=lapply(1:length(bt1),function(i){bt1[[i]]$ST.out})
   NST.out=lapply(1:length(bt1),function(i){bt1[[i]]$NST.out})
+  MST.out=lapply(1:length(bt1),function(i){bt1[[i]]$MST.out})
+  
   ST.boot=lapply(1:length(bt1),function(i){bt1[[i]]$ST.boot})
   NST.boot=lapply(1:length(bt1),function(i){bt1[[i]]$NST.boot})
+  MST.boot=lapply(1:length(bt1),function(i){bt1[[i]]$MST.boot})
+  
   ST.noout=lapply(1:length(bt1),function(i){bt1[[i]]$ST.noout})
   NST.noout=lapply(1:length(bt1),function(i){bt1[[i]]$NST.noout})
+  MST.noout=lapply(1:length(bt1),function(i){bt1[[i]]$MST.noout})
+  
   if(between.group & (length(grp.lev)>1))
   {
     STb.stats=lapply(1:length(bt2),function(i){bt2[[i]]$ST.stats})
     NSTb.stats=lapply(1:length(bt2),function(i){bt2[[i]]$NST.stats})
+    MSTb.stats=lapply(1:length(bt2),function(i){bt2[[i]]$MST.stats})
+    
     STb.out=lapply(1:length(bt2),function(i){bt2[[i]]$ST.out})
     NSTb.out=lapply(1:length(bt2),function(i){bt2[[i]]$NST.out})
+    MSTb.out=lapply(1:length(bt2),function(i){bt2[[i]]$MST.out})
+    
     STb.boot=lapply(1:length(bt2),function(i){bt2[[i]]$ST.boot})
     NSTb.boot=lapply(1:length(bt2),function(i){bt2[[i]]$NST.boot})
+    MSTb.boot=lapply(1:length(bt2),function(i){bt2[[i]]$MST.boot})
+    
     STb.noout=lapply(1:length(bt2),function(i){bt2[[i]]$ST.noout})
     NSTb.noout=lapply(1:length(bt2),function(i){bt2[[i]]$NST.noout})
+    MSTb.noout=lapply(1:length(bt2),function(i){bt2[[i]]$MST.noout})
+    
     bgn=lapply(1:length(bt2),function(i){bt2[[i]]$id})
   }
   
@@ -222,13 +252,17 @@ nst.boot<-function(nst.result,group=NULL,rand=999,trace=TRUE,
   
   ST.sum=ltom(ST.stats, ST.out)
   NST.sum=ltom(NST.stats, NST.out)
-  rownames(ST.sum)<-rownames(NST.sum)<-grp.lev
+  MST.sum=ltom(MST.stats, MST.out)
+  
+  rownames(ST.sum)<-rownames(NST.sum)<-rownames(MST.sum)<-grp.lev
   
   if(between.group & (length(grp.lev)>1))
   {
     STb.sum=ltom(STb.stats, STb.out)
     NSTb.sum=ltom(NSTb.stats, NSTb.out)
-    rownames(STb.sum)<-rownames(NSTb.sum)<-unlist(bgn)
+    MSTb.sum=ltom(MSTb.stats, MSTb.out)
+    
+    rownames(STb.sum)<-rownames(NSTb.sum)<-rownames(MSTb.sum)<-unlist(bgn)
   }
   
   p.count<-function(x,y,obs.dxy,two.tail=FALSE)
@@ -247,7 +281,7 @@ nst.boot<-function(nst.result,group=NULL,rand=999,trace=TRUE,
     p
   }
   
-  st.comp<-nst.comp<-list();k=1
+  st.comp<-nst.comp<-mst.comp<-list();k=1
   if(length(grp.lev)>1)
   {
     for(i in 1:(length(grp.lev)-1))
@@ -260,47 +294,90 @@ nst.boot<-function(nst.result,group=NULL,rand=999,trace=TRUE,
         ST.obsdij=ST.stats[[i]][[1]]-ST.stats[[j]][[1]]
         ST.cpij=p.count(ST.boot[[i]],ST.boot[[j]],ST.obsdij,two.tail = two.tail)
         STno.cpij=p.count(ST.noout[[i]],ST.noout[[j]],ST.obsdij,two.tail = two.tail)
+        
         NST.wtij=stats::wilcox.test(NST.boot[[i]],NST.boot[[j]])
         NSTno.wtij=stats::wilcox.test(NST.noout[[i]],NST.noout[[j]])
         NST.obsdij=NST.stats[[i]][[1]]-NST.stats[[j]][[1]]
         NST.cpij=p.count(NST.boot[[i]],NST.boot[[j]],NST.obsdij,two.tail = two.tail)
         NSTno.cpij=p.count(NST.noout[[i]],NST.noout[[j]],NST.obsdij,two.tail = two.tail)
+        
+        MST.wtij=stats::wilcox.test(MST.boot[[i]],MST.boot[[j]])
+        MSTno.wtij=stats::wilcox.test(MST.noout[[i]],MST.noout[[j]])
+        MST.obsdij=MST.stats[[i]][[1]]-MST.stats[[j]][[1]]
+        MST.cpij=p.count(MST.boot[[i]],MST.boot[[j]],MST.obsdij,two.tail = two.tail)
+        MSTno.cpij=p.count(MST.noout[[i]],MST.noout[[j]],MST.obsdij,two.tail = two.tail)
+        
         st.comp[[k]]=c(group1=grp.lev[i],group2=grp.lev[j],
-                       ST.group1=ST.stats[[i]][1],ST.group2=ST.stats[[j]][1],
+                       group1.obs=ST.stats[[i]][[1]],group2.obs=ST.stats[[j]][[1]],
                        w.value=ST.wtij$statistic,p.wtest=ifelse(two.tail,ST.wtij$p.value,(ST.wtij$p.value)/2),
                        p.count=ST.cpij,w.value.noOut=STno.wtij$statistic,
                        p.wtest.noOut=ifelse(two.tail,STno.wtij$p.value,(STno.wtij$p.value)/2),
                        p.count.noOut=STno.cpij)
         nst.comp[[k]]=c(group1=grp.lev[i],group2=grp.lev[j],
-                       NST.group1=NST.stats[[i]][1],NST.group2=NST.stats[[j]][1],
-                       w.value=NST.wtij$statistic,p.wtest=ifelse(two.tail,NST.wtij$p.value,(NST.wtij$p.value)/2),
-                       p.count=NST.cpij,w.value.noOut=NSTno.wtij$statistic,
-                       p.wtest.noOut=ifelse(two.tail,NSTno.wtij$p.value,(NSTno.wtij$p.value)/2),
-                       p.count.noOut=NSTno.cpij)
+                        group1.obs=NST.stats[[i]][[1]],group2.obs=NST.stats[[j]][[1]],
+                        w.value=NST.wtij$statistic,p.wtest=ifelse(two.tail,NST.wtij$p.value,(NST.wtij$p.value)/2),
+                        p.count=NST.cpij,w.value.noOut=NSTno.wtij$statistic,
+                        p.wtest.noOut=ifelse(two.tail,NSTno.wtij$p.value,(NSTno.wtij$p.value)/2),
+                        p.count.noOut=NSTno.cpij)
+        mst.comp[[k]]=c(group1=grp.lev[i],group2=grp.lev[j],
+                        group1.obs=MST.stats[[i]][[1]],group2.obs=MST.stats[[j]][[1]],
+                        w.value=MST.wtij$statistic,p.wtest=ifelse(two.tail,MST.wtij$p.value,(MST.wtij$p.value)/2),
+                        p.count=MST.cpij,w.value.noOut=MSTno.wtij$statistic,
+                        p.wtest.noOut=ifelse(two.tail,MSTno.wtij$p.value,(MSTno.wtij$p.value)/2),
+                        p.count.noOut=MSTno.cpij)
+        
         k=k+1
       }
     }
-    st.comps=Reduce(rbind,st.comp)
-    nst.comps=Reduce(rbind,nst.comp)
-    rownames(st.comps)<-rownames(nst.comps)<-c()
+    if(length(st.comp)==1)
+    {
+      st.comps=t(st.comp[[1]])
+      nst.comps=t(nst.comp[[1]])
+      mst.comps=t(mst.comp[[1]])
+    }else{
+      st.comps=Reduce(rbind,st.comp)
+      nst.comps=Reduce(rbind,nst.comp)
+      mst.comps=Reduce(rbind,mst.comp)
+      rownames(st.comps)<-rownames(nst.comps)<-rownames(mst.comps)<-c()
+    }
+    outcp=data.frame(Index=c(rep("ST",nrow(st.comps)),
+                             rep("NST",nrow(nst.comps)),
+                             rep("MST",nrow(mst.comps))),
+                     rbind(st.comps,nst.comps,mst.comps),
+                     stringsAsFactors = FALSE)
   }else{
-    st.comps=NULL
-    nst.comps=NULL
+    outcp=NULL
   }
   
-  output=list(ST.summary=ST.sum,NST.summary=NST.sum,ST.compare=st.comps,NST.compare=nst.comps)
   if(between.group)
   {
-    output=c(output,list(ST.between.summary=STb.sum,NST.between.summary=NSTb.sum))
+    ml=list(ST.sum,STb.sum,NST.sum,NSTb.sum,MST.sum,MSTb.sum)
+    ml.indexs=c(rep("ST",nrow(ml[[1]])+nrow(ml[[2]])),
+                rep("NST",nrow(ml[[3]])+nrow(ml[[4]])),
+                rep("MST",nrow(ml[[5]])+nrow(ml[[6]])))
+  }else{
+    ml=list(ST.sum,NST.sum,MST.sum)
+    ml.indexs=c(rep("ST",nrow(ml[[1]])),rep("NST",nrow(ml[[2]])),rep("MST",nrow(ml[[3]])))
   }
+  ml.grps=unlist(lapply(ml,function(m){rownames(m)}))
+  ml.len=sapply(ml,ncol)
+  outml=Reduce(rbind,lapply(ml,function(m){outm=cbind(m,matrix(NA,nrow=nrow(m),ncol=max(ml.len)-ncol(m)));colnames(outm)=c();outm}))
+  colnames(outml)=colnames(ml[[which.max(ml.len)]])
+  outlr=data.frame(Index=ml.indexs,Group=ml.grps, outml,stringsAsFactors = FALSE)
+  rownames(outlr)=c()
+  
+  output=list(summary=outlr,compare=outcp)
+  
   if(out.detail)
   {
-    names(ST.boot)<-names(NST.boot)<-names(ST.noout)<-names(NST.noout)<-grp.lev
-    detail=list(ST.boot=ST.boot,NST.boot=NST.boot,ST.boot.rmout=ST.noout,NST.boot.rmout=NST.noout)
+    names(ST.boot)<-names(NST.boot)<-names(MST.boot)<-names(ST.noout)<-names(NST.noout)<-names(MST.noout)<-grp.lev
+    detail=list(ST.boot=ST.boot,NST.boot=NST.boot,MST.boot=MST.boot,
+                ST.boot.rmout=ST.noout,NST.boot.rmout=NST.noout,MST.boot.rmout=MST.noout)
     if(between.group)
     {
-      names(STb.boot)<-names(NSTb.boot)<-names(STb.noout)<-names(NSTb.noout)<-unlist(bgn)
-      detail=c(detail,list(STb.boot=STb.boot,NSTb.boot=NSTb.boot,STb.boot.rmout=STb.noout,NSTb.boot.rmout=NSTb.noout))
+      names(STb.boot)<-names(NSTb.boot)<-names(MSTb.boot)<-names(STb.noout)<-names(NSTb.noout)<-names(MSTb.noout)<-unlist(bgn)
+      detail=c(detail,list(STb.boot=STb.boot,NSTb.boot=NSTb.boot,MSTb.boot=MSTb.boot,
+                           STb.boot.rmout=STb.noout,NSTb.boot.rmout=NSTb.noout,MSTb.boot.rmout=MSTb.noout))
     }
     output=c(output,list(detail=detail))
   }

@@ -35,14 +35,14 @@ pNST(comm, tree=NULL, pd=NULL,pd.desc=NULL,pd.wd=NULL,pd.spname=NULL,
   \item{RC}{Logic, whether to calculate modified Raup-Crick metric, which is percentage of null dissimilarity lower than observed dissimilarity x 2 - 1. default is FALSE.}
 }
 \details{
-NST is a metric to estimate ecological stochasticity based on null model analysis of dissimilarity (Ning et al 2019). NST is improved from previous index ST (Zhou et al 2014). Modified stochasticity ratio (MST) is also calculated (Liang et al 2019; Guo et al 2018), which can be regarded as a spcial transformation of NST under assumption that observed similarity can be equal to mean of null similarity under pure stochastic assembly.
+NST is a metric to estimate ecological stochasticity based on null model analysis of dissimilarity (Ning et al 2019). NST is improved from previous index ST (Zhou et al 2014). Modified stochasticity ratio (MST) is also calculated (Liang et al 2020; Guo et al 2018), which can be regarded as a spcial transformation of NST under assumption that observed similarity can be equal to mean of null similarity under pure stochastic assembly.
 
 pNST is NST based on phylogenetic beta diversity (Ning et al 2019, Guo et al 2018), here, beta mean nearest taxon distance (bMNTD). pNST showed better performance in stochasticity estimation than tNST in some cases (Ning et al 2020).
 }
 \value{
 Output is a list. Please DO NOT use NST.ij values in index.pair.grp and index.between.grp which can be out of [0,1] without ecologcial meanning. Please use \code{\link{nst.boot}} to get variation of NST.
 
-  \item{index.pair}{indexes for each pairwise comparison. D.ij, observed dissimilarity, not standardized; G.ij, average null expectation of dissimilarity, not standardized; Ds.ij, observed dissimilarity, standardized to range from 0 to 1; Gs.ij,  average null expectation of dissimilarity, standardized; C.ij and E.ij are similarity and average null expectation of simmilarity, standardized if the dissimilarity has no fixed upper limit; ST.ij, stochasticity ratio calculated by previous method (Zhou et al 2014); MST.ij, modified stochasticity ratio calculated by a modified method (Liang et al 2019; Guo et al 2018); bNTI, beta nearest taxon index, i.e. standard effect size of difference between observed and null betaMNTD (Webb et al 2008); RC.bMNTD, modified Roup-Crick metrics (Chase et al 2011) but based on betaMNTD.}
+  \item{index.pair}{indexes for each pairwise comparison. D.ij, observed dissimilarity, not standardized; G.ij, average null expectation of dissimilarity, not standardized; Ds.ij, observed dissimilarity, standardized to range from 0 to 1; Gs.ij,  average null expectation of dissimilarity, standardized; C.ij and E.ij are similarity and average null expectation of simmilarity, standardized if the dissimilarity has no fixed upper limit; ST.ij, stochasticity ratio calculated by previous method (Zhou et al 2014); MST.ij, modified stochasticity ratio calculated by a modified method (Liang et al 2020; Guo et al 2018); bNTI, beta nearest taxon index, i.e. standard effect size of difference between observed and null betaMNTD (Webb et al 2008); RC.bMNTD, modified Roup-Crick metrics (Chase et al 2011) but based on betaMNTD.}
   \item{index.grp}{mean value of each index in each group. group, group name; size, number of pairwise comparisons in this group; ST.i, group mean of stochasticity ratio, not normalized; NST.i, group mean of normalized stochasticity ratio; MST.i, group mean of modified stochasticity ratio.}
   \item{index.pair.grp}{pairwise values of each index in each group. group, group name; C.ij, E.ij, ST.ij, and MST.ij have the same meaning as in index.pair; NST.ij, the pairwise values of NST, for reference only, DO NOT use. Since NST is normalized ST calculated from ST.ij, NST pairwise values NST.ij have no ecological meaning. Variation of NST from bootstrapping test is preferred, see \code{\link{nst.boot}}.}
   \item{index.between}{mean value of each index between each two groups. Similar to index.grp, but calcualted from comparisons between each two groups.}
@@ -56,7 +56,7 @@ Ning D., Deng Y., Tiedje J.M. & Zhou J. (2019) A general framework for quantitat
 
 Zhou J, Deng Y, Zhang P, Xue K, Liang Y, Van Nostrand JD, Yang Y, He Z, Wu L, Stahl DA, Hazen TC, Tiedje JM, and Arkin AP. (2014) Stochasticity, succession, and environmental perturbations in a fluidic ecosystem. Proceedings of the National Academy of Sciences of the United States of America 111, E836-E845. doi:10.1073/pnas.1324044111.
 
-Liang Y, Ning D, Lu Z, Zhang N, Hale L, Wu L, Clark IM, McGrath SP, Storkey J, Hirsch PR, Sun B, and Zhou J. (2019) Century long fertilization reduces stochasticity controlling grassland microbial community succession. bioRxiv, doi:10.1101/638908.
+Liang Y, Ning D, Lu Z, Zhang N, Hale L, Wu L, Clark IM, McGrath SP, Storkey J, Hirsch PR, Sun B, and Zhou J. (2020) Century long fertilization reduces stochasticity controlling grassland microbial community succession. Soil Biology and Biochemistry 151, 108023. doi:10.1016/j.soilbio.2020.108023.
 
 Guo X, Feng J, Shi Z, Zhou X, Yuan M, Tao X, Hale L, Yuan T, Wang J, Qin Y, Zhou A, Fu Y, Wu L, He Z, Van Nostrand JD, Ning D, Liu X, Luo Y, Tiedje JM, Yang Y, and Zhou J. (2018) Climate warming leads to divergent succession of grassland microbial communities. Nature Climate Change 8, 813-818. doi:10.1038/s41558-018-0254-2.
 
@@ -64,7 +64,7 @@ Webb, C.O., Ackerly, D.D. & Kembel, S.W. (2008). Phylocom: software for the anal
 
 Chase JM, Kraft NJB, Smith KG, Vellend M, and Inouye BD. (2011) Using null models to disentangle variation in community dissimilarity from variation in alpha-diversity. Ecosphere 2, art24. doi:10.1890/es10-00117.1.
 
-Ning, D., Yuan, M., Wu, L., Zhang, Y., Guo, X., Zhou, X. et al. (2020). A quantitative framework reveals the ecological drivers of grassland soil microbial community assembly in response to warming. bioRxiv. doi:10.1101/2020.02.22.960872 (Nature Communications, under revision).
+Ning, D., Yuan, M., Wu, L., Zhang, Y., Guo, X., Zhou, X. et al. (2020). A quantitative framework reveals ecological drivers of grassland microbial community assembly in response to warming. Nature Communications, 11, 4717.
 }
 \author{
 Daliang Ning

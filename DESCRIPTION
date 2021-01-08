@@ -1,15 +1,16 @@
 Package: NST
 Type: Package
 Title: Normalized Stochasticity Ratio
-Version: 3.0.3
-Date: 2020-09-09
+Version: 3.0.6
+Date: 2021-1-7
 Author: Daliang Ning
 Maintainer: Daliang Ning <ningdaliang@ou.edu>
 Imports: vegan,parallel,permute,ape,bigmemory,iCAMP
 Depends: R (>= 3.1.0)
-Description: To estimate ecological stochasticity in community assembly. Understanding the community assembly mechanisms controlling biodiversity patterns is a central issue in ecology. Although it is generally accepted that both deterministic and stochastic processes play important roles in community assembly, quantifying their relative importance is challenging. The new index, normalized stochasticity ratio (NST), is to estimate ecological stochasticity, i.e. relative importance of stochastic processes, in community assembly. With functions in this package, NST can be calculated based on different similarity metrics and/or different null model algorithms, as well as some previous indexes, e.g. previous Stochasticity Ratio (ST), Standard Effect Size (SES), modified Raup-Crick metrics (RC). Functions for permutational test and bootstrapping analysis are also included. Previous ST is published by Zhou et al (2014) <doi:10.1073/pnas.1324044111>. NST is modified from ST by considering two alternative situations and normalizing the index to range from 0 to 1 (Ning et al 2019) <doi:10.1073/pnas.1904623116>. A modified version, MST, is a special case of NST, used in some recent or upcoming publications, e.g. Liang et al (2019) <doi:10.1101/638908>. SES is calculated as described in Kraft et al (2011) <doi:10.1126/science.1208584>. RC is calculated as reported by Chase et al (2011) <doi:10.1890/es10-00117.1> and Stegen et al (2013) <doi:10.1038/ismej.2013.93>. Version 3 added NST based on phylogenetic beta diversity, used by Ning et al (2020) <doi:10.1101/2020.02.22.960872>.
+Description: To estimate ecological stochasticity in community assembly. Understanding the community assembly mechanisms controlling biodiversity patterns is a central issue in ecology. Although it is generally accepted that both deterministic and stochastic processes play important roles in community assembly, quantifying their relative importance is challenging. The new index, normalized stochasticity ratio (NST), is to estimate ecological stochasticity, i.e. relative importance of stochastic processes, in community assembly. With functions in this package, NST can be calculated based on different similarity metrics and/or different null model algorithms, as well as some previous indexes, e.g. previous Stochasticity Ratio (ST), Standard Effect Size (SES), modified Raup-Crick metrics (RC). Functions for permutational test and bootstrapping analysis are also included. Previous ST is published by Zhou et al (2014) <doi:10.1073/pnas.1324044111>. NST is modified from ST by considering two alternative situations and normalizing the index to range from 0 to 1 (Ning et al 2019) <doi:10.1073/pnas.1904623116>. A modified version, MST, is a special case of NST, used in some recent or upcoming publications, e.g. Liang et al (2020) <doi:10.1016/j.soilbio.2020.108023>. SES is calculated as described in Kraft et al (2011) <doi:10.1126/science.1208584>. RC is calculated as reported by Chase et al (2011) <doi:10.1890/es10-00117.1> and Stegen et al (2013) <doi:10.1038/ismej.2013.93>. Version 3 added NST based on phylogenetic beta diversity, used by Ning et al (2020) <doi:10.1038/s41467-020-18560-z>.
 License: GPL-2
+URL: https://github.com/DaliangNing/NST
 NeedsCompilation: no
-Packaged: 2020-09-09 15:51:05 UTC; ndl81
+Packaged: 2021-01-07 22:57:15 UTC; ndl81
 Repository: CRAN
-Date/Publication: 2020-09-16 05:30:02 UTC
+Date/Publication: 2021-01-08 06:10:03 UTC

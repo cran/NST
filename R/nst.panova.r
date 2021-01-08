@@ -26,6 +26,10 @@ nst.panova<-function(nst.result,group=NULL,rand=999,trace=TRUE)
   
   Cij=(Dmax-obs)/Dmax
   Eij=(Dmax-rand.mean)/Dmax
+  Dsij = obs/Dmax
+  Gsij = rand.mean/Dmax
+  MSTsij = (Eij/Cij) * (Dsij/Gsij)
+  MSTsij[which(MSTsij > 1)] = ((Cij/Eij) * (Gsij/Dsij))[which(MSTsij > 1)]
   
   STmin=Eij
   STmin[which(obs>rand.mean)]=(1-Eij)[which(obs>rand.mean)]
@@ -58,16 +62,16 @@ nst.panova<-function(nst.result,group=NULL,rand=999,trace=TRUE)
   eps=.Machine$double.eps
   if(trace){trace.seq=seq(from=1,to=rands[[1]],by=200)}else{trace.seq=NULL}
   
-  stnst<-function(u,perms,rands,groups,obs3,ECGD,STmin,trace.seq)
+  stnst<-function(u,perms,rands,groups,obs3,ECGD,STmin,trace.seq,MSTsij)
   {
     if(!is.null(trace.seq)){if(u %in% trace.seq){message("Now randomization u=",u," in ",rands[[1]],". ",date())}}
-    STs<-NSTs<-grps<-STij<-NSTij<-grpij<-list()
+    STs<-NSTs<-MSTs<-grps<-STij<-NSTij<-MSTij<-grpij<-list()
     for(k in 1:length(perms))
     {
-      STs[[k]]<-NSTs[[k]]<-grps[[k]]<-STij[[k]]<-NSTij[[k]]<-grpij[[k]]<-list()
+      STs[[k]]<-NSTs[[k]]<-MSTs[[k]]<-grps[[k]]<-STij[[k]]<-NSTij[[k]]<-MSTij[[k]]<-grpij[[k]]<-list()
       if(u>nrow(perms[[k]]))
       {
-        STs[[k]]<-NSTs[[k]]<-grps[[k]]<-STij[[k]]<-NSTij[[k]]<-grpij[[k]]<-NULL
+        STs[[k]]<-NSTs[[k]]<-MSTs[[k]]<-grps[[k]]<-STij[[k]]<-NSTij[[k]]<-MSTij[[k]]<-grpij[[k]]<-NA
       }else{
         groupk=groups[[k]]
         rownames(groupk)=perms[[k]][u,]
@@ -86,10 +90,12 @@ nst.panova<-function(nst.result,group=NULL,rand=999,trace=TRUE)
           
           STij[[k]][[i]]=ECGD[idi,ncol(ECGD)]
           NSTij[[k]][[i]]=(STij[[k]][[i]]-STi.min)/(STi.max-STi.min)
+          MSTij[[k]][[i]]=MSTsij[idi]
           #NSTij[[k]][[i]]=(STij[[k]][[i]]-STmin[idi])/(STi.max-STmin[idi]) # less reasonable
           grpij[[k]][[i]]=rep(grpk.lev[i],length(idi))
           STs[[k]][[i]]=STi
           NSTs[[k]][[i]]=NSTi
+          MSTs[[k]][[i]]=mean(MSTsij[idi],na.rm = TRUE)
           grps[[k]][[i]]=grpk.lev[i]
         }
       }
@@ -99,7 +105,7 @@ nst.panova<-function(nst.result,group=NULL,rand=999,trace=TRUE)
       Fobs<-Pobs<-Rname<-Vobs<-dobs<-list()
       for(k in 1:length(Vij))
       {
-        if(is.null(Vij[[k]]))
+        if(sum(is.na(Vij[[k]]))>0)
         {
           Fobs[[k]]<-Pobs[[k]]<-dobs[[k]]<-NA
           Rname[[k]]<-Vobs[[k]]<-c(NA,NA)
@@ -120,12 +126,13 @@ nst.panova<-function(nst.result,group=NULL,rand=999,trace=TRUE)
       rownames(Vout)=c();colnames(Vout)=c("group1","group2",paste0("Index.",c("group1","group2")))
       list(Vobs=Vout,Fvalue=Fobs,Pvalue=Pobs,dif=dobs)
     }
-    list(NST.dfp=dFP(Vij=NSTij,grpij=grpij,Vi=NSTs,grpi=grps),
-         ST.dfp=dFP(Vij=STij,grpij=grpij,Vi=STs,grpi=grps))
+    list(ST.dfp=dFP(Vij=STij,grpij=grpij,Vi=STs,grpi=grps),
+         NST.dfp=dFP(Vij=NSTij,grpij=grpij,Vi=NSTs,grpi=grps),
+         MST.dfp=dFP(Vij=MSTij,grpij=grpij,Vi=MSTs,grpi=grps))
   }
   
-  rres=lapply(1:rands[[1]],stnst,perms,rands,groups,obs3,ECGD,STmin,trace.seq)
-  ind.names=c("NST","ST")
+  rres=lapply(1:rands[[1]],stnst,perms,rands,groups,obs3,ECGD,STmin,trace.seq,MSTsij)
+  ind.names=c("ST","NST","MST")
   output=list()
   for(j in 1:length(rres[[1]]))
   {
