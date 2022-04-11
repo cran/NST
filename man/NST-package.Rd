@@ -15,13 +15,22 @@ Version 3.0.3: remove setwd in functions; change dontrun to donttest and revise 
 Version 3.0.4: update github link of NST; update nst.boot and nst.panova to include MST results.
 Version 3.0.5: debug nst.panova.
 Version 3.0.6: update references.
+Version 3.1.1: add options to allow input propotional data (rather than counts) as community matrix, as well as community data transformation before dissimilarity calculation.
+Version 3.1.2: provide temporary solution for the failure of makeCluster in some OS.
+Version 3.1.3: add options to specify occurrence frequency in regional pool.
+Version 3.1.4: debug ab.assign.
+Version 3.1.5: add function cNST to calculate NST using user customized beta diversity and the null results.
+Version 3.1.6: revise functions tNST, pNST, cNST, nst.boot, and nst.panova to avoid error for special cases in MST calculation.
+Version 3.1.7(20210928): revise function nst.panova to avoid error for special cases in permutation.
+Version 3.1.8(20211029): add summary and test for SES and RC in functions tNST, pNST, cNST, nst.boot, and nst.panova.
+Version 3.1.9(20220410): address notes from package check.
 }
 \details{
 \tabular{ll}{
 Package: \tab NST\cr
 Type: \tab Package\cr
-Version: \tab 3.0.6\cr
-Date: \tab 2021-1-7\cr
+Version: \tab 3.1.9\cr
+Date: \tab 2022-4-10\cr
 License: \tab GPL-2\cr
 }
 }

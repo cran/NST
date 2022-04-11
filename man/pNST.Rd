@@ -11,7 +11,7 @@ pNST(comm, tree=NULL, pd=NULL,pd.desc=NULL,pd.wd=NULL,pd.spname=NULL,
      group, meta.group=NULL, abundance.weighted=TRUE, rand=1000,
      output.rand=FALSE, taxo.null.model=NULL, phylo.shuffle=TRUE,
      exclude.conspecifics=FALSE, nworker=4, LB=FALSE,
-     between.group=FALSE, SES=FALSE, RC=FALSE)
+     between.group=FALSE, SES=FALSE, RC=FALSE, dirichlet=FALSE)
 }
 \arguments{
   \item{comm}{matrix or data.frame, community data, rows are samples/sites, colnames are taxa (species/OTUs/ASVs)}
@@ -33,6 +33,7 @@ pNST(comm, tree=NULL, pd=NULL,pd.desc=NULL,pd.wd=NULL,pd.spname=NULL,
   \item{between.group}{Logic, whether to calculate stochasticity for between-group turnovers. default is FALSE.}
   \item{SES}{Logic, whether to calculate standardized effect size, which is (observed dissimilarity - mean of null dissimilarity)/standard deviation of null dissimilarity. default is FALSE.}
   \item{RC}{Logic, whether to calculate modified Raup-Crick metric, which is percentage of null dissimilarity lower than observed dissimilarity x 2 - 1. default is FALSE.}
+  \item{dirichlet}{Logic. If TRUE, the taxonomic null model will use Dirichlet distribution to generate relative abundances in randomized community matrix. If the input community matrix has all row sums no more than 1, the function will automatically set dirichlet=TRUE. default is FALSE.}
 }
 \details{
 NST is a metric to estimate ecological stochasticity based on null model analysis of dissimilarity (Ning et al 2019). NST is improved from previous index ST (Zhou et al 2014). Modified stochasticity ratio (MST) is also calculated (Liang et al 2020; Guo et al 2018), which can be regarded as a spcial transformation of NST under assumption that observed similarity can be equal to mean of null similarity under pure stochastic assembly.
@@ -43,8 +44,8 @@ pNST is NST based on phylogenetic beta diversity (Ning et al 2019, Guo et al 201
 Output is a list. Please DO NOT use NST.ij values in index.pair.grp and index.between.grp which can be out of [0,1] without ecologcial meanning. Please use \code{\link{nst.boot}} to get variation of NST.
 
   \item{index.pair}{indexes for each pairwise comparison. D.ij, observed dissimilarity, not standardized; G.ij, average null expectation of dissimilarity, not standardized; Ds.ij, observed dissimilarity, standardized to range from 0 to 1; Gs.ij,  average null expectation of dissimilarity, standardized; C.ij and E.ij are similarity and average null expectation of simmilarity, standardized if the dissimilarity has no fixed upper limit; ST.ij, stochasticity ratio calculated by previous method (Zhou et al 2014); MST.ij, modified stochasticity ratio calculated by a modified method (Liang et al 2020; Guo et al 2018); bNTI, beta nearest taxon index, i.e. standard effect size of difference between observed and null betaMNTD (Webb et al 2008); RC.bMNTD, modified Roup-Crick metrics (Chase et al 2011) but based on betaMNTD.}
-  \item{index.grp}{mean value of each index in each group. group, group name; size, number of pairwise comparisons in this group; ST.i, group mean of stochasticity ratio, not normalized; NST.i, group mean of normalized stochasticity ratio; MST.i, group mean of modified stochasticity ratio.}
-  \item{index.pair.grp}{pairwise values of each index in each group. group, group name; C.ij, E.ij, ST.ij, and MST.ij have the same meaning as in index.pair; NST.ij, the pairwise values of NST, for reference only, DO NOT use. Since NST is normalized ST calculated from ST.ij, NST pairwise values NST.ij have no ecological meaning. Variation of NST from bootstrapping test is preferred, see \code{\link{nst.boot}}.}
+  \item{index.grp}{mean value of each index in each group. group, group name; size, number of pairwise comparisons in this group; ST.i, group mean of stochasticity ratio, not normalized; NST.i, group mean of normalized stochasticity ratio; MST.i, group mean of modified stochasticity ratio; SES.i, group mean of standard effect size (bataNTI); RC.i, group mean of modified Roup-Crick metric.}
+  \item{index.pair.grp}{pairwise values of each index in each group. group, group name; C.ij, E.ij, ST.ij, MST.ij, SES.ij (i.e. bNTI), and RC.ij have the same meaning as in index.pair; NST.ij, the pairwise values of NST, for reference only, DO NOT use. Since NST is normalized ST calculated from ST.ij, NST pairwise values NST.ij have no ecological meaning. Variation of NST from bootstrapping test is preferred, see \code{\link{nst.boot}}.}
   \item{index.between}{mean value of each index between each two groups. Similar to index.grp, but calcualted from comparisons between each two groups.}
   \item{index.pair.between}{pairwise values of each index between each two groups. Similar to index.pair.grp, but calcualted from comparisons between each two groups.}
   \item{Dmax}{The maximum or upper limit of dissimilarity before standardized, which is used to standardize the dissimilarity with upper limit not equal to one.}
@@ -70,6 +71,9 @@ Ning, D., Yuan, M., Wu, L., Zhang, Y., Guo, X., Zhou, X. et al. (2020). A quanti
 Daliang Ning
 }
 \note{
+Version 6: 2021.10.29, add summary of SES (i.e. betaNTI) and RC.
+Version 5: 2021.8.25, revised to avoid error for special cases in MST calculation.
+Version 4: 2021.4.16, add option dirichlet, to allow input community matrix with relative abundances (proportion) rather than integer counts.
 Version 3: 2020.9.9, remove setwd; change dontrun to donttest and revise save.wd in help doc.
 Version 2: 2020.8.22, add to NST package, update help document.
 Version 1: 2018.1.9

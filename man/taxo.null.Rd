@@ -12,7 +12,7 @@ taxo.null(comm,sp.freq=c("not","equip","prop","prop.ab","fix"),
           swap.method=c("not","swap","tswap","quasiswap",
                         "backtrack"),burnin=0,
           abundance=c("not","shuffle","local","region"),
-          region.meta=NULL)
+          region.meta=NULL,region.freq=NULL,dirichlet=FALSE)
 }
 \arguments{
   \item{comm}{matrix, community data, rownames are sample/site names, colnames are species names}
@@ -22,6 +22,8 @@ taxo.null(comm,sp.freq=c("not","equip","prop","prop.ab","fix"),
   \item{burnin}{Nonnegative integer, specifying the number of steps discarded before starting simulation. Active only for sequential null model algorithms. Ignored for non-sequential null model algorithms. also see \code{\link[vegan]{nullmodel}}.}
   \item{abundance}{character, the method to draw individuals (abundance) into present species when randomizing taxonomic structures, see details.}
   \item{region.meta}{a numeric vector, to define the (relative) abundance of each species in metacommunity/regional pool. The names should be species IDs. If no name, it should be in exact the same order as columns of comm. Default is NULL, the relative abundance in metacommunity will be calculated from comm.}
+  \item{region.freq}{a numeric vector, to define the occurrence frequency of each species in metacommunity/regional pool. The names should be species IDs. If no name, it should be in exact the same order as columns of comm. Default is NULL, the occurrence frequency in metacommunity will be calculated from comm. If sp.freq='fix', the input region.freq must be integers. If sp.freq='fix' and samp.rich='fix', since no applicable algorithm now, region.freq will be ignored.}
+  \item{dirichlet}{Logic. If TRUE, the taxonomic null model will use Dirichlet distribution to generate relative abundances in randomized community matrix. If the input community matrix has all row sums no more than 1, the function will automatically set dirichlet=TRUE. default is FALSE.}
 }
 \details{
 This function returns a randomized community dataset (one time randomization), used by the function \code{\link{tNST}}. The null models differentiated by how to deal with species occurrence frequency (sp.freq), species richness in each sample (samp.rich), relative abundances (abundance), and which swap method used if both sp.freq and samp.rich are fixed.
@@ -55,7 +57,9 @@ Others cited in \code{\link[vegan]{commsim}}.
 Daliang Ning
 }
 \note{
-Version 1.0: 2015.10.22
+Version 3: 2021.5.11, add option region.freq to specify occurrence frequency in regional pool.
+Version 2: 2021.4.16, add option dirichlet to handle community matrix with relative abundance values rather than counts.
+Version 1: 2015.10.22
 }
 
 \seealso{

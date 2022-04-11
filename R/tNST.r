@@ -1,12 +1,22 @@
-tNST<-function(comm,group,meta.group=NULL,meta.com=NULL,
+tNST<-function(comm,group,meta.group=NULL,meta.com=NULL,meta.frequency=NULL,
                dist.method="jaccard",abundance.weighted=TRUE,
-              rand=1000,output.rand=FALSE,nworker=4,LB=FALSE,
-              null.model="PF",between.group=FALSE,SES=FALSE,RC=FALSE)
+               rand=1000,output.rand=FALSE,nworker=4,LB=FALSE,
+               null.model="PF",dirichlet=FALSE,between.group=FALSE,
+               SES=FALSE,RC=FALSE, transform.method=NULL, logbase=2)
 {
   if(sum(is.na(comm))>0)
   {
     comm[is.na(comm)]=0
     warning("NA is not allowed in comm. automatically filled zero.")
+  }
+  if(sum(comm<0,na.rm = TRUE)>0)
+  {
+    stop("Negative value is not allowed in comm. If you need to perform transform before calculating dissimilarity, you may define transform.method.")
+  }
+  if(max(rowSums(comm,na.rm = TRUE))<=1 & (!dirichlet))
+  {
+    warning("The values in comm are less than 1, thus considered as proportional data, Dirichlet distribution is used to assign abundance in null model.")
+    dirichlet=TRUE
   }
   groupck<-function(group)
   {
@@ -15,21 +25,25 @@ tNST<-function(comm,group,meta.group=NULL,meta.com=NULL,
     if(sum(grp.tab<6)>0){warning("some groups have less than 6 samples, for which NST can be calculated but not recommened.")}
     invisible()
   }
+  matchv<-function(m,comm)
+  {
+    if(is.null(m)){out=NULL}else{
+      if(is.vector(m)){m=t(as.matrix(m))}
+      out=rep(0,ncol(comm))
+      m2=m[,which(colnames(m) %in% colnames(comm)),drop=FALSE]
+      out[match(colnames(m2),colnames(comm))]=colSums(m2)
+      names(out)=colnames(comm)
+    }
+    out
+  }
   if(is.null(meta.group))
   {
     sampc=match.name(rn.list = list(comm=comm,group=group))
     comm=sampc$comm
     group=sampc$group
     groupck(group)
-    if(is.null(meta.com))
-    {
-      meta.abs=NULL
-    }else{
-      meta.abs=rep(0,ncol(comm))
-      meta.com=meta.com[,which(colnames(meta.com) %in% colnames(comm)),drop=FALSE]
-      meta.abs[match(colnames(meta.com),colnames(comm))]=colSums(meta.com)
-      names(meta.abs)=colnames(comm)
-    }
+    meta.abs=matchv(meta.com,comm)
+    meta.freqs=matchv(meta.frequency,comm)
   }else{
     sampc=match.name(rn.list = list(comm=comm,group=group,meta.group=meta.group))
     comm=sampc$comm
@@ -37,44 +51,46 @@ tNST<-function(comm,group,meta.group=NULL,meta.com=NULL,
     groupck(group)
     meta.group=sampc$meta.group
     meta.lev=unique(as.vector(meta.group[,1]))
-    if(is.null(meta.com))
+    
+    matchms<-function(meta.m,...)
     {
-      meta.abs=lapply(1:length(meta.lev),function(i){NULL})
-    }else{
-      meta.com=meta.com[,which(colnames(meta.com) %in% colnames(comm)),drop=FALSE]
-      if(sum(!(rownames(comm) %in% rownames(meta.com)))==0)
+      if(is.null(meta.m))
       {
-        meta.abs=lapply(1:length(meta.lev),
-                        function(i)
-                        {
-                          sampi=rownames(meta.group)[which(meta.group[,1]==meta.lev[i])]
-                          outi=rep(0,ncol(comm))
-                          outi[match(colnames(meta.com),colnames(comm))]=colSums(meta.com[which(rownames(meta.com) %in% sampi),,drop=FALSE])
-                          names(outi)=colnames(comm)
-                          outi
-                        })
+        meta.ms=lapply(1:length(meta.lev),function(i){NULL})
       }else{
-        if(sum(!(meta.lev %in% rownames(meta.com)))==0)
+        if(sum(!(rownames(comm) %in% rownames(meta.m)))==0)
         {
-          meta.abs=lapply(1:length(meta.lev),
-                          function(i)
-                          {
-                            outi=rep(0,ncol(comm))
-                            outi[match(colnames(meta.com),colnames(comm))]=meta.com[which(rownames(meta.com)==meta.lev[i]),]
-                            names(outi)=colnames(comm)
-                            outi
-                          })
+          meta.ms=lapply(1:length(meta.lev),
+                         function(i)
+                         {
+                           sampi=rownames(meta.group)[which(meta.group[,1]==meta.lev[i])]
+                           matchv(meta.m[which(rownames(meta.m) %in% sampi),,drop=FALSE],comm)
+                         })
         }else{
-          stop("meta.group and meta.com setting are not fit.")
+          if(sum(!(meta.lev %in% rownames(meta.m)))==0)
+          {
+            meta.ms=lapply(1:length(meta.lev),
+                           function(i)
+                           {
+                             matchv(meta.m[which(rownames(meta.m)==meta.lev[i]),,drop=FALSE],comm)
+                           })
+          }else{
+            stop("meta.group and meta.com or meta.frequency setting are not fit.")
+          }
         }
       }
+      names(meta.ms)=meta.lev
+      meta.ms
     }
-    names(meta.abs)=meta.lev
+    
+    meta.abs=matchms(meta.com)
+    meta.freqs=matchms(meta.frequency)
   }
   
-  obs3=as.matrix(beta.g(comm,dist.method=dist.method,
+  obs3=as.matrix(NST::beta.g(comm,dist.method=dist.method,
                         abundance.weighted = abundance.weighted,
-                        as.3col = TRUE,out.list = FALSE))
+                        as.3col = TRUE,out.list = FALSE,
+                        transform.method=transform.method, logbase=logbase))
   obs=as.numeric(obs3[,3])
   
   # Null models definition
@@ -101,7 +117,9 @@ tNST<-function(comm,group,meta.group=NULL,meta.com=NULL,
   samp.rich=null.models[null.model,"samp.rich"]
   swap.method=null.models[null.model,"swap.method"]
   
-  dist.rand<-function(i,comm,meta.group,dist.method,abundance.weighted,sp.freq,samp.rich,swap.method,meta.abs)
+  dist.rand<-function(i,comm,meta.group,dist.method,abundance.weighted,
+                      sp.freq,samp.rich,swap.method,meta.abs,
+                      dirichlet,transform.method,logbase,meta.freqs)
   {
     message("Now randomizing i=",i,". ",date())
     if(abundance.weighted){abundance.null="region"}else{abundance.null="not"}
@@ -109,7 +127,8 @@ tNST<-function(comm,group,meta.group=NULL,meta.com=NULL,
     {
       comr=NST::taxo.null(comm = comm,sp.freq = sp.freq,samp.rich = samp.rich,
                      swap.method = swap.method,burnin = i,
-                     abundance = abundance.null,region.meta = meta.abs)
+                     abundance = abundance.null,region.meta = meta.abs,
+                     dirichlet = dirichlet, region.freq = meta.freqs)
     }else{
       meta.lev=unique(as.vector(meta.group[,1]))
       meta.abs=meta.abs[match(meta.lev,names(meta.abs))]
@@ -119,31 +138,38 @@ tNST<-function(comm,group,meta.group=NULL,meta.com=NULL,
                                   comv=comm[which(meta.group[,1]==meta.lev[v]),,drop=FALSE]
                                   NST::taxo.null(comm = comv,sp.freq = sp.freq,samp.rich = samp.rich,
                                             swap.method = swap.method,burnin = i,
-                                            abundance = abundance.null,region.meta = meta.abs[[v]])
+                                            abundance = abundance.null,region.meta = meta.abs[[v]],
+                                            dirichlet = dirichlet, region.freq = meta.freqs[[v]])
                                 }))
       comr=comrl[match(rownames(comm),rownames(comrl)),,drop=FALSE]
     }
-    out=as.matrix(beta.g(comr,dist.method = dist.method,
-                                abundance.weighted = abundance.weighted,
-                                as.3col = TRUE,out.list = FALSE))
+    out=as.matrix(NST::beta.g(comr,dist.method = dist.method,
+                         abundance.weighted = abundance.weighted,
+                         as.3col = TRUE,out.list = FALSE,
+                         transform.method=transform.method, logbase=logbase))
     as.numeric(out[,3])
   }
   
   if(nworker==1)
   {
     dist.ran=sapply(1:rand,dist.rand,comm,meta.group,dist.method,
-                    abundance.weighted,sp.freq,samp.rich,swap.method,meta.abs)
+                    abundance.weighted,sp.freq,samp.rich,swap.method,
+                    meta.abs,dirichlet,transform.method,logbase,meta.freqs)
   }else{
-    c1<-parallel::makeCluster(nworker,type="PSOCK")
+    c1<-try(parallel::makeCluster(nworker,type="PSOCK"))
+    if(class(c1)[1]=='try-error'){c1 <- try(parallel::makeCluster(nworker, setup_timeout = 0.5))}
+    if(class(c1)[1]=='try-error'){c1 <- try(parallel::makeCluster(nworker, setup_strategy = "sequential"))}
     message("Now randomizing by parallel computing. Begin at ", date(),". Please wait...")
     if(LB)
     {
       dist.ran=parallel::parSapplyLB(c1,1:rand,dist.rand,comm,meta.group,dist.method,
-                                   abundance.weighted,sp.freq,samp.rich,swap.method,meta.abs)
+                                   abundance.weighted,sp.freq,samp.rich,swap.method,
+                                   meta.abs,dirichlet,transform.method,logbase,meta.freqs)
       
     }else{
       dist.ran=parallel::parSapply(c1,1:rand,dist.rand,comm,meta.group,dist.method,
-                                   abundance.weighted,sp.freq,samp.rich,swap.method,meta.abs)
+                                   abundance.weighted,sp.freq,samp.rich,swap.method,
+                                   meta.abs,dirichlet,transform.method,logbase,meta.freqs)
     }
     parallel::stopCluster(c1)
   }
@@ -205,8 +231,20 @@ tNST<-function(comm,group,meta.group=NULL,meta.com=NULL,
   Eij=(Dmax-rand.mean)/Dmax
   Dsij=obs/Dmax
   Gsij=rand.mean/Dmax
-  MSTij=(Eij/Cij)*(Dsij/Gsij)
-  MSTij[which(MSTij>1)]=((Cij/Eij)*(Gsij/Dsij))[which(MSTij>1)]
+  
+  ####
+  ECijx=Eij/Cij; CEijx=Cij/Eij
+  ECijx[is.nan(ECijx)]=1
+  CEijx[is.nan(CEijx)]=1
+  DGijx=Dsij/Gsij;GDijx=Gsij/Dsij
+  DGijx[is.nan(DGijx)]=1
+  GDijx[is.nan(GDijx)]=1
+  
+  MSTij = (ECijx) * (DGijx)
+  MSTij[which(MSTij > 1)] = ((CEijx) * (GDijx))[which(MSTij > 1)]
+  #####
+  #MSTij=(Eij/Cij)*(Dsij/Gsij)
+  #MSTij[which(MSTij>1)]=((Cij/Eij)*(Gsij/Dsij))[which(MSTij>1)]
   indexs=data.frame(obs3[,1:2],D.ij=obs,G.ij=rand.mean,Ds.ij=Dsij,
                     Gs.ij=Gsij,C.ij=Cij, E.ij=Eij, ST.ij=ECGD[,ncol(ECGD)],MST.ij=MSTij)
   colnames(indexs)[3:ncol(indexs)]=paste0(colnames(indexs)[3:ncol(indexs)],".",colnames(obs3)[3])
@@ -237,6 +275,20 @@ tNST<-function(comm,group,meta.group=NULL,meta.com=NULL,
     outij[[i]]=data.frame(group=rep(grp.lev[i],length(idi)),
                           obs3[idi,1:2,drop=FALSE],C.ij=Cij[idi],E.ij=Eij[idi],
                           ST.ij=STij,NST.ij=NSTij,MST.ij=MSTiji,stringsAsFactors = FALSE)
+    
+    if(SES)
+    {
+      ses.i=mean(as.numeric(ses[idi,3]),na.rm = TRUE)
+      outi[[i]]=data.frame(outi[[i]],SES.i=ses.i,stringsAsFactors = FALSE)
+      outij[[i]]=data.frame(outij[[i]],SES.ij=as.numeric(ses[idi,3]),stringsAsFactors = FALSE)
+    }
+    if(RC)
+    {
+      rc.i=mean(as.numeric(rc[idi,3]),na.rm = TRUE)
+      outi[[i]]=data.frame(outi[[i]],RC.i=rc.i,stringsAsFactors = FALSE)
+      outij[[i]]=data.frame(outij[[i]],RC.ij=as.numeric(rc[idi,3]),stringsAsFactors = FALSE)
+    }
+    
     if(between.group)
     {
       if(i<length(grp.lev))
@@ -263,6 +315,20 @@ tNST<-function(comm,group,meta.group=NULL,meta.com=NULL,
           outikj[[bgi]]=data.frame(group=rep(paste0(grp.lev[i],".vs.",grp.lev[k]),length(idik)),
                                 obs3[idik,1:2,drop=FALSE],C.ij=Cij[idik],E.ij=Eij[idik],
                                 ST.ij=STikj,NST.ij=NSTikj,MST.ij=MSTikj,stringsAsFactors = FALSE)
+          
+          if(SES)
+          {
+            sesik=mean(as.numeric(ses[idik,3]),na.rm = TRUE)
+            outik[[bgi]]=data.frame(outik[[bgi]],SES.i=sesik,stringsAsFactors = FALSE)
+            outikj[[bgi]]=data.frame(outikj[[bgi]],SES.ij=as.numeric(ses[idik,3]),stringsAsFactors = FALSE)
+          }
+          if(RC)
+          {
+            rcik=mean(as.numeric(rc[idik,3]),na.rm = TRUE)
+            outik[[bgi]]=data.frame(outik[[bgi]],RC.i=rcik,stringsAsFactors = FALSE)
+            outikj[[bgi]]=data.frame(outikj[[bgi]],RC.ij=as.numeric(rc[idik,3]),stringsAsFactors = FALSE)
+          }
+          
           bgi=bgi+1
         }
       }

@@ -10,7 +10,7 @@ This function can simultaneously calculate various taxonomic dissimilarity index
 }
 \usage{
 beta.g(comm, dist.method="bray", abundance.weighted=TRUE,
-       as.3col=FALSE,out.list=TRUE)
+       as.3col=FALSE,out.list=TRUE, transform.method=NULL, logbase=2)
 chaosorensen(comm, dissimilarity=TRUE, to.dist=TRUE)
 chaojaccard(comm, dissimilarity=TRUE, to.dist=TRUE)
 }
@@ -22,6 +22,8 @@ chaojaccard(comm, dissimilarity=TRUE, to.dist=TRUE)
   \item{out.list}{Logic, if using multiple indexes, output their results as a list (TRUE) or a matrix combining all 3-column matrixes (FALSE). if out.list=FALSE, as.3col will be forced to be TRUE. default is TRUE.}
   \item{dissimilarity}{Logic, calculate dissimilarity or similarity. default is TRUE, means to return dissimilarity.}
   \item{to.dist}{Logic, return distance object or squared matrix. default is TRUE, means to return distance object.}
+  \item{transform.method}{character or a defined function, to specify how to transform community matrix before calculating dissimilarity. if it is a characher, it should be a method name as in the function 'decostand' in package 'vegan', including 'total','max','freq','normalize','range','standardize','pa','chi.square','cmdscale','hellinger','log'.}
+  \item{logbase}{numeric, the logarithm base used when transform.method='log'.}
 }
 \details{
 All the taxonomic beta diversity indexes are mainly calculated by vegdist in package vegan, except following methods:
@@ -40,9 +42,11 @@ Jari Oksanen, F. Guillaume Blanchet, Michael Friendly, Roeland Kindt, Pierre Leg
 
 Anderson MJ, Ellingsen KE, & McArdle BH (2006) Multivariate dispersion as a measure of beta diversity. Ecol Lett 9(6):683-693.
 
-Chao, A., R. L. Chazdon, et al. 2005. A new statistical approach for assessing similarity of speciescomposition with incidence and abundance data. Ecology Letters 8: 148-159
+Chao, A., R. L. Chazdon, et al. (2005) A new statistical approach for assessing similarity of speciescomposition with incidence and abundance data. Ecology Letters 8: 148-159
 
 Vavrek, Matthew J. 2011. fossil: palaeoecological and palaeogeographical analysis tools. Palaeontologia Electronica, 14:1T.
+
+Legendre, P. & Gallagher, E.D. (2001) Ecologically meaningful transformations for ordination of species data. Oecologia 129, 271--280.
 
 Others cited in the help document of vegdist in R package vegan.
 }
@@ -50,8 +54,9 @@ Others cited in the help document of vegdist in R package vegan.
 Daliang Ning
 }
 \note{
-Version 2: 2019.5.10
-Version 1: 2015.9.25
+Version 3: 2021.4.16, add option to transform community matrix.
+Version 2: 2019.5.10.
+Version 1: 2015.9.25.
 }
 \seealso{
 \code{\link{tNST}}

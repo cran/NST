@@ -9,7 +9,7 @@ To test the distribution of ST and NST in each group, and the significance of ST
 \usage{
 nst.boot(nst.result, group=NULL, rand=999, trace=TRUE,
          two.tail=FALSE, out.detail=FALSE, between.group=FALSE,
-         nworker=1)
+         nworker=1, SES=FALSE, RC=FALSE)
 }
 \arguments{
   \item{nst.result}{list object, the output of tNST, must have "details", thus the output.rand must be TRUE in tNST function.}
@@ -20,9 +20,11 @@ nst.boot(nst.result, group=NULL, rand=999, trace=TRUE,
   \item{out.detail}{logic, whether to output details rather than just summarized results.}
   \item{between.group}{Logic, whether to calculate for between-group turnovers. default is FALSE.}
   \item{nworker}{for parallel computing. Either a character vector of host names on which to run the worker copies of R, or a positive integer (in which case that number of copies is run on localhost). default is 1, means not to use parallel computing.}
+  \item{SES}{Logic, whether to perform bootstrapping test for standardized effect size (SES). SES is (observed dissimilarity - mean of null dissimilarity)/standard deviation of null dissimilarity. default is FALSE.}
+  \item{RC}{Logic, whether to perform bootstrapping test for modified Raup-Crick metric (RC). RC is percentage of null dissimilarity lower than observed dissimilarity x 2 - 1. default is FALSE.}
 }
 \details{
-Normalized stochasticity ratio (NST, Ning et al 2019) is a index to estimate average stochasticity within a group of samples. Bootstrapping is an excellent method to evaluate the statistical variation. Since the observed/null dissimilarity values are not independent (pairwise comparisons), bootstrapping should be random draw of samples rather than the pairwise values. Bootstrapping for stochasticity ratio (ST, Zhou et al 2014) is also performed.
+Normalized stochasticity ratio (NST, Ning et al 2019) is a index to estimate average stochasticity within a group of samples. Bootstrapping is an excellent method to evaluate the statistical variation. Since the observed/null dissimilarity values are not independent (pairwise comparisons), bootstrapping should be random draw of samples rather than the pairwise values. Bootstrapping for stochasticity ratio (ST, Zhou et al 2014) or SES or RC can also be performed.
 }
 \value{
 Output is a list object, includes
@@ -37,6 +39,8 @@ Ning D., Deng Y., Tiedje J.M. & Zhou J. (2019) A general framework for quantitat
 Daliang Ning
 }
 \note{
+Version 6: 2021.10.29, add bootstrapping test for SES and RC.
+Version 5: 2021.8.25, revised to avoid error for special cases in MST calculation.
 Version 4: 2020.9.19, Add MST results into output.
 Version 3: 2019.10.8, Update reference.
 Version 2: 2019.5.10

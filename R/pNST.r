@@ -2,7 +2,7 @@ pNST<-function(comm, tree=NULL, pd=NULL,pd.desc=NULL,pd.wd=NULL,pd.spname=NULL,
                group, meta.group=NULL, abundance.weighted=TRUE, rand=1000,
                output.rand=FALSE, taxo.null.model=NULL, phylo.shuffle=TRUE,
                exclude.conspecifics=FALSE, nworker=4, LB=FALSE,
-               between.group=FALSE, SES=FALSE, RC=FALSE)
+               between.group=FALSE, SES=FALSE, RC=FALSE, dirichlet=FALSE)
 {
   requireNamespace("iCAMP")
   if(sum(is.na(comm))>0)
@@ -10,6 +10,16 @@ pNST<-function(comm, tree=NULL, pd=NULL,pd.desc=NULL,pd.wd=NULL,pd.spname=NULL,
     comm[is.na(comm)]=0
     warning("NA is not allowed in comm. automatically filled zero.")
   }
+  if(sum(comm<0,na.rm = TRUE)>0)
+  {
+    stop("Negative value is not allowed in comm. data transformation is not applicable to betaMNTD.")
+  }
+  if(max(rowSums(comm,na.rm = TRUE))<=1 & (!dirichlet))
+  {
+    warning("The values in comm are less than 1, thus considered as proportional data, Dirichlet distribution is used to assign abundance in null model.")
+    dirichlet=TRUE
+  }
+  
   groupck<-function(group)
   {
     grp.tab=table(as.vector(group[,1]))
@@ -139,7 +149,7 @@ pNST<-function(comm, tree=NULL, pd=NULL,pd.desc=NULL,pd.wd=NULL,pd.spname=NULL,
                       pd.desc=NULL,pd.wd=NULL,pd.spname=NULL,
                       abundance.weighted=TRUE,big=TRUE,
                       sp.freq=NULL,samp.rich=NULL,swap.method=NULL,
-                      phylo.shuffle=TRUE,exclude.conspecifics=FALSE)
+                      phylo.shuffle=TRUE,exclude.conspecifics=FALSE,dirichlet=FALSE)
   {
     message("Now randomizing i=",i,". ",date())
     requireNamespace("NST")
@@ -152,7 +162,7 @@ pNST<-function(comm, tree=NULL, pd=NULL,pd.desc=NULL,pd.wd=NULL,pd.spname=NULL,
       }else{
         comr=taxo.null(comm = comm,sp.freq = sp.freq,samp.rich = samp.rich,
                        swap.method = swap.method,burnin = i,
-                       abundance = abundance.null,region.meta = NULL)
+                       abundance = abundance.null,region.meta = NULL,dirichlet=dirichlet)
         
         if(phylo.shuffle)
         {
@@ -171,7 +181,7 @@ pNST<-function(comm, tree=NULL, pd=NULL,pd.desc=NULL,pd.wd=NULL,pd.spname=NULL,
         }else{
           comrj=taxo.null(comm = comm[idj,,drop=FALSE],sp.freq = sp.freq,samp.rich = samp.rich,
                           swap.method = swap.method,burnin = i,
-                          abundance = abundance.null,region.meta = NULL)
+                          abundance = abundance.null,region.meta = NULL,dirichlet=dirichlet)
           if(phylo.shuffle)
           {
             comr[idj,]=comrj[,permat[[j]][[i]],drop=FALSE]
@@ -202,9 +212,12 @@ pNST<-function(comm, tree=NULL, pd=NULL,pd.desc=NULL,pd.wd=NULL,pd.spname=NULL,
                     pd=pd,pd.desc=pd.desc,pd.wd=pd.wd,pd.spname=pd.spname,
                     abundance.weighted=abundance.weighted,big=big,
                     sp.freq=sp.freq,samp.rich=samp.rich,swap.method=swap.method,
-                    phylo.shuffle=phylo.shuffle,exclude.conspecifics=exclude.conspecifics)
+                    phylo.shuffle=phylo.shuffle,exclude.conspecifics=exclude.conspecifics,
+                    dirichlet=dirichlet)
   }else{
-    c1<-parallel::makeCluster(nworker,type="PSOCK")
+    c1<-try(parallel::makeCluster(nworker,type="PSOCK"))
+    if(class(c1)[1]=='try-error'){c1 <- try(parallel::makeCluster(nworker, setup_timeout = 0.5))}
+    if(class(c1)[1]=='try-error'){c1 <- try(parallel::makeCluster(nworker, setup_strategy = "sequential"))}
     message("Now randomizing by parallel computing. Begin at ", date(),". Please wait...")
     if(LB)
     {
@@ -213,14 +226,16 @@ pNST<-function(comm, tree=NULL, pd=NULL,pd.desc=NULL,pd.wd=NULL,pd.spname=NULL,
                                      pd=pd,pd.desc=pd.desc,pd.wd=pd.wd,pd.spname=pd.spname,
                                      abundance.weighted=abundance.weighted,big=big,
                                      sp.freq=sp.freq,samp.rich=samp.rich,swap.method=swap.method,
-                                     phylo.shuffle=phylo.shuffle,exclude.conspecifics=exclude.conspecifics)
+                                     phylo.shuffle=phylo.shuffle,exclude.conspecifics=exclude.conspecifics,
+                                     dirichlet=dirichlet)
     }else{
       dist.ran=parallel::parSapply(c1,1:rand,dist.rand,
                                    permat=permat,comm=comm,meta.group=meta.group,
                                    pd=pd,pd.desc=pd.desc,pd.wd=pd.wd,pd.spname=pd.spname,
                                    abundance.weighted=abundance.weighted,big=big,
                                    sp.freq=sp.freq,samp.rich=samp.rich,swap.method=swap.method,
-                                   phylo.shuffle=phylo.shuffle,exclude.conspecifics=exclude.conspecifics)
+                                   phylo.shuffle=phylo.shuffle,exclude.conspecifics=exclude.conspecifics,
+                                   dirichlet=dirichlet)
     }
     parallel::stopCluster(c1)
   }
@@ -259,8 +274,20 @@ pNST<-function(comm, tree=NULL, pd=NULL,pd.desc=NULL,pd.wd=NULL,pd.spname=NULL,
   
   Dsij=obs/Dmax
   Gsij=rand.mean/Dmax
-  MSTij=(Eij/Cij)*(Dsij/Gsij)
-  MSTij[which(MSTij>1)]=((Cij/Eij)*(Gsij/Dsij))[which(MSTij>1)]
+  
+  ####
+  ECijx=Eij/Cij; CEijx=Cij/Eij
+  ECijx[is.nan(ECijx)]=1
+  CEijx[is.nan(CEijx)]=1
+  DGijx=Dsij/Gsij;GDijx=Gsij/Dsij
+  DGijx[is.nan(DGijx)]=1
+  GDijx[is.nan(GDijx)]=1
+  
+  MSTij = (ECijx) * (DGijx)
+  MSTij[which(MSTij > 1)] = ((CEijx) * (GDijx))[which(MSTij > 1)]
+  #####
+  #MSTij=(Eij/Cij)*(Dsij/Gsij)
+  #MSTij[which(MSTij>1)]=((Cij/Eij)*(Gsij/Dsij))[which(MSTij>1)]
   indexs=data.frame(obs3[,1:2],D.ij=obs,G.ij=rand.mean,Ds.ij=Dsij,
                     Gs.ij=Gsij,C.ij=Cij, E.ij=Eij, ST.ij=ECGD[,ncol(ECGD)], MST.ij=MSTij)
   colnames(indexs)[3:ncol(indexs)]=paste0(colnames(indexs)[3:ncol(indexs)],".bMNTD")
@@ -291,6 +318,20 @@ pNST<-function(comm, tree=NULL, pd=NULL,pd.desc=NULL,pd.wd=NULL,pd.spname=NULL,
     outij[[i]]=data.frame(group=rep(grp.lev[i],length(idi)),
                           obs3[idi,1:2,drop=FALSE],C.ij=Cij[idi],E.ij=Eij[idi],
                           ST.ij=STij,NST.ij=NSTij,MST.ij=MSTiji,stringsAsFactors = FALSE)
+    
+    if(SES)
+    {
+      ses.i=mean(as.numeric(ses[idi,3]),na.rm = TRUE)
+      outi[[i]]=data.frame(outi[[i]],SES.i=ses.i,stringsAsFactors = FALSE)
+      outij[[i]]=data.frame(outij[[i]],SES.ij=as.numeric(ses[idi,3]),stringsAsFactors = FALSE)
+    }
+    if(RC)
+    {
+      rc.i=mean(as.numeric(rc[idi,3]),na.rm = TRUE)
+      outi[[i]]=data.frame(outi[[i]],RC.i=rc.i,stringsAsFactors = FALSE)
+      outij[[i]]=data.frame(outij[[i]],RC.ij=as.numeric(rc[idi,3]),stringsAsFactors = FALSE)
+    }
+    
     if(between.group)
     {
       if(i<length(grp.lev))
@@ -317,6 +358,20 @@ pNST<-function(comm, tree=NULL, pd=NULL,pd.desc=NULL,pd.wd=NULL,pd.spname=NULL,
           outikj[[bgi]]=data.frame(group=rep(paste0(grp.lev[i],".vs.",grp.lev[k]),length(idik)),
                                    obs3[idik,1:2,drop=FALSE],C.ij=Cij[idik],E.ij=Eij[idik],
                                    ST.ij=STikj,NST.ij=NSTikj,MST.ij=MSTikj,stringsAsFactors = FALSE)
+          
+          if(SES)
+          {
+            sesik=mean(as.numeric(ses[idik,3]),na.rm = TRUE)
+            outik[[bgi]]=data.frame(outik[[bgi]],SES.i=sesik,stringsAsFactors = FALSE)
+            outikj[[bgi]]=data.frame(outikj[[bgi]],SES.ij=as.numeric(ses[idik,3]),stringsAsFactors = FALSE)
+          }
+          if(RC)
+          {
+            rcik=mean(as.numeric(rc[idik,3]),na.rm = TRUE)
+            outik[[bgi]]=data.frame(outik[[bgi]],RC.i=rcik,stringsAsFactors = FALSE)
+            outikj[[bgi]]=data.frame(outikj[[bgi]],RC.ij=as.numeric(rc[idik,3]),stringsAsFactors = FALSE)
+          }
+          
           bgi=bgi+1
         }
       }

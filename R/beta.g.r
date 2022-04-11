@@ -1,5 +1,5 @@
 beta.g<-function(comm,dist.method="bray",abundance.weighted=TRUE,
-                 as.3col=FALSE,out.list=TRUE)
+                 as.3col=FALSE,out.list=TRUE, transform.method=NULL, logbase=2)
 {
   #library(vegan)
   if(length(abundance.weighted)<length(dist.method))
@@ -18,6 +18,18 @@ beta.g<-function(comm,dist.method="bray",abundance.weighted=TRUE,
   id.uw=which(!abundance.weighted)
   dist.methodcr[id.uw[which(dist.methodcr[id.uw]=="bray")]]="sorensen"
   dist.methodcr[id.uw[which(dist.methodcr[id.uw]=="ruzicka")]]="jaccard"
+  
+  # comm data transform
+  if(!is.null(transform.method))
+  {
+    if(inherits(transform.method,"function"))
+    {
+      comm=transform.method(comm)
+    }else{
+      requireNamespace("vegan")
+      comm=vegan::decostand(comm,method = transform.method, logbase=logbase, na.rm = TRUE)
+    }
+  }
   
   # distance
   if(length(dist.method)==1)
