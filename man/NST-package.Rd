@@ -24,13 +24,14 @@ Version 3.1.6: revise functions tNST, pNST, cNST, nst.boot, and nst.panova to av
 Version 3.1.7(20210928): revise function nst.panova to avoid error for special cases in permutation.
 Version 3.1.8(20211029): add summary and test for SES and RC in functions tNST, pNST, cNST, nst.boot, and nst.panova.
 Version 3.1.9(20220410): address notes from package check.
+Version 3.1.10(20220603): tested with the latest version of package iCAMP.
 }
 \details{
 \tabular{ll}{
 Package: \tab NST\cr
 Type: \tab Package\cr
-Version: \tab 3.1.9\cr
-Date: \tab 2022-4-10\cr
+Version: \tab 3.1.10\cr
+Date: \tab 2022-6-3\cr
 License: \tab GPL-2\cr
 }
 }

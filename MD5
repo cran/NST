@@ -1,4 +1,4 @@
-85f9f05aae87eb2fcfa443717e0e7cee *DESCRIPTION
+11bb8af5569cd369903dc0ff0de862bd *DESCRIPTION
 2031df0b80c4fdad8cb6a9df4d569ae2 *NAMESPACE
 99f24b72740e6c5809c7683c2fb77f94 *R/ab.assign.r
 3a60d35ecc9039411d7c5195021f33a0 *R/beta.g.r
@@ -16,7 +16,7 @@ c91070d028d875cf2bbada282a1ca45b *data/beta.obs.rand.rda
 eddb638372baf5efadf28623f6280fd1 *data/null.models.rda
 6af54b6f567dab263b7dec465ca6f41a *data/tda.rda
 ca78833ee781c1f897c951521194436a *inst/CITATION
-36cff89887244928e260cf7b2009469d *man/NST-package.Rd
+3dc9446ff84e8a4a0d69035937afe7b2 *man/NST-package.Rd
 69ef2709af28c4dba4eba29589880412 *man/ab.assign.Rd
 56dd9e23d741ef2b2e059e1e8803e443 *man/beta.g.Rd
 2f95df6065fe1a87fb1affb3dbb2c0a3 *man/beta.limit.Rd
